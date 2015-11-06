@@ -55,12 +55,13 @@
 #include <cstdio>
 #include <chrono>
 #include <thread>
+#include <cstdint>
 
 #include "libxdma.h"
 
 extern "C" {
-#include <stdint.h>
-#include "xil_io.h"
+#include <unistd.h>
+//#include "xil_io.h"
 };
 
 #include "memregisters.h"
@@ -104,11 +105,11 @@ int main()
 
     printf("Sending a reset to clear up any lingering trash...\n");
 
-    mWriteReg(mappedCmd,10*REGISTER_OFFSET,0);
+    mWriteReg((u32)mappedCmd,10*REGISTER_OFFSET,0);
 
     sleep(1);
     printf("Reset sent. Now re-asserting the reset signal...\n");
-    mWriteReg(mappedCmd,10*REGISTER_OFFSET,0);
+    mWriteReg((u32)mappedCmd,10*REGISTER_OFFSET,0);
     sleep(1);
     printf("Reset sent. Now proceeding with device setup...\n");
 
@@ -167,7 +168,7 @@ int main()
 
 	// Enabling the IPs just prior to start reading
 	printf("Enabling the FPGA...\n");
-	mWriteReg(mappedCmd,11*REGISTER_OFFSET,1);
+	mWriteReg((u32)mappedCmd,11*REGISTER_OFFSET,1);
 
 
 	printf("Starting to read...\n");
