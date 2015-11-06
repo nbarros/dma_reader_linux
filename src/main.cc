@@ -63,6 +63,9 @@ extern "C" {
 #include "xil_io.h"
 };
 
+#include "memregisters.h"
+#include "memutils.h"
+
 typedef uint32_t u32;
 //void print(char *str);
 
@@ -83,7 +86,35 @@ int main()
 {
     //init_platform();
 
-    printf("Starting the TS dump\n");
+	// Start byt allocating the memory
+
+    // Map the whole memory bunch
+    printf("Mapping the memory needed for control and config...\n");
+
+    mem_dev regs;
+    regs.base_addr = XPAR_MEMORY_MAPPER_0_S00_AXI_BASEADDR;
+    regs.high_addr = XPAR_MEMORY_MAPPER_0_S00_AXI_HIGHADDR;
+    regs.dev_id = 0;
+    regs.n_regs = 20;
+    regs.reg_offset = 4;
+
+    void *mappedCmd = MemoryMapping(regs.base_addr,regs.high_addr);
+
+    printf("Mapping completed...\n");
+
+    printf("Sending a reset to clear up any lingering trash...\n");
+
+    mWriteReg(mappedCmd,10*REGISTER_OFFSET,0);
+
+    sleep(1);
+    printf("Reset sent. Now re-asserting the reset signal...\n");
+    mWriteReg(mappedCmd,10*REGISTER_OFFSET,0);
+    sleep(1);
+    printf("Reset sent. Now proceeding with device setup...\n");
+
+
+
+    printf("Starting the DMA dump\n");
 	int Status;
 	//u32 InputData;
 	int i,j;
@@ -94,7 +125,7 @@ int main()
 	//XGpio GpioInput[XPAR_XGPIO_NUM_INSTANCES];  /* The driver instance for GPIO Device configured as I/P */
 
 
-	printf("Now initializing the DMA:\n");
+	printf("Initializing the DMA:\n");
 	const int LENGTH = 1025;
 	int result = 0;
 	//uint32_t i;
@@ -142,15 +173,14 @@ int main()
 
 
 		ret = xdma_perform_transaction(0,XDMA_WAIT_DST,NULL,0,dst,16);
-		printf("DMA %08X %08X %08X %08X\r\n",(unsigned int)dst[0],(unsigned int)dst[1],(unsigned int)dst[2],(unsigned int)dst[3]);
+//		printf("DMA %08X %08X %08X %08X\r\n",(unsigned int)dst[0],(unsigned int)dst[1],(unsigned int)dst[2],(unsigned int)dst[3]);
+		printf("DMA %08X %08X %08X %08X\r\n",(unsigned int)dst[3],(unsigned int)dst[2],(unsigned int)dst[1],(unsigned int)dst[0]);
 
 		// Now take the contents from the DMA
 
 
-		// print the readout contents:
-		//for (i = 0; i < )
-		//printf("Output : CTRL : 0x%08X (%u) STAT : 0x%08X TS : 0x%08X 0x%08X PRE : 0x%08X 0x%08X \n",data[0][1],data[0][1], data[0][0],data[1][0],data[1][1],data[2][0],data[2][1]);
-		sleep(0.1);
+		// Don't sleep. If necessary this can be added later.
+		//sleep(0.1);
 	}
 	printf("Preparing to exit.\n");
 	xdma_exit();
