@@ -164,6 +164,12 @@ int main()
 //		//  }
 //			  printf("...done\n");
 //	}
+
+	// Enabling the IPs just prior to start reading
+	printf("Enabling the FPGA...\n");
+	mWriteReg(mappedCmd,11*REGISTER_OFFSET,1);
+
+
 	printf("Starting to read...\n");
 
 	uint32_t baseaddr;
