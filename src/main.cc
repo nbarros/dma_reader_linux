@@ -142,7 +142,7 @@ int main()
 
 
 		ret = xdma_perform_transaction(0,XDMA_WAIT_DST,NULL,0,dst,16);
-		printf("DMA %08X %08X %08X %08X\r\n",(unsigned int)dst[0],(unsigned int)dst[1],(unsigned int)dst[2],(unsigned int)dst[3]);
+		printf("DMA %08X %08X %08X %08X\r\n",(unsigned int)dst[3],(unsigned int)dst[2],(unsigned int)dst[1],(unsigned int)dst[0]);
 
 		// Now take the contents from the DMA
 
