@@ -1,15 +1,3 @@
-################################################################################
-# Automatically-generated file. Do not edit!
-################################################################################
-
-
-XDMA_PREFIX:= /usr/local
-XDMA_LIBRARY := -lxdma
-
-## Do not touch below:
-EXTRA_INCLUDES += -I$(XDMA_PREFIX)/include
-EXTRA_LIBS += -L$(XDMA_PREFIX)/lib $(XDMA_LIBRARY)
-
 
 CC := $(CROSS_COMPILE)gcc
 CXX := $(CROSS_COMPILE)g++
@@ -35,6 +23,12 @@ CC_DEPS += \
 OBJS += \
 .build/main.o 
 
+XDMA_PREFIX:= /usr/local
+XDMA_LIBRARY := -lxdma
+
+## Do not touch below:
+EXTRA_INCLUDES += -I$(XDMA_PREFIX)/include
+EXTRA_LIBS += -L$(XDMA_PREFIX)/lib $(XDMA_LIBRARY)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 ELFSIZE += \
