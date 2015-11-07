@@ -90,6 +90,7 @@ void* MemoryMapping(u32 BaseAddress, u32 HighAddress)
   return MappedBaseAddress;
 }
 
+
 //void InitialiseRegs(void* MappedBaseAddress)
 //{
 //  // Set registers to zero...
