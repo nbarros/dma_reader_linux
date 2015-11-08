@@ -100,13 +100,23 @@ int main()
     printf("Mapping the memory needed for control and config...\n");
 
     mem_dev regs;
-    regs.base_addr = XPAR_MEMORY_MAPPER_0_S00_AXI_BASEADDR;
-    regs.high_addr = XPAR_MEMORY_MAPPER_0_S00_AXI_HIGHADDR;
+    regs.base_addr = CONFIG_MANAGER_BASEADDR;
+    regs.high_addr = CONFIG_MANAGER_HIGHADDR;
     regs.dev_id = 0;
-    regs.n_regs = 20;
+    regs.n_regs = 40;
     regs.reg_offset = 4;
 
     void *mappedCmd = MemoryMapping(regs.base_addr,regs.high_addr);
+
+    mem_dev mdump;
+    mdump.base_addr = MEMORY_MAPPER_BASEADDR;
+    mdump.high_addr = MEMORY_MAPPER_HIGHADDR;
+    mdump.dev_id = 0;
+    mdump.n_regs = 20;
+    mdump.reg_offset = 4;
+
+    void *mappedDump = MemoryMapping(mdump.base_addr,mdump.high_addr);
+
 
     printf("Mapping completed...\n");
 
@@ -185,19 +195,26 @@ int main()
 	printf("Configuring the FPGA....\n");
 	status = SetBit(status,29,0x1);
 	mWriteReg((u32)mappedCmd,0*REGISTER_OFFSET,status);
+	printf("Status of enable module:\n");
+	u32 syncreg = mReadReg((u32)mappedDump,0*REGISTER_OFFSET);
+	printf("Returned : %08X\n",syncreg);
 	printf("Current status...\n");
 	u32 reg_ret = mReadReg((u32)mappedCmd,0*REGISTER_OFFSET);
-	printf("Returned status... %u\n",reg_ret);
+	printf("Returned status... %08X\n",reg_ret);
 	printf("Enabling the FPGA...\n");
 	status = SetBit(status,31,0x1);
 	mWriteReg((u32)mappedCmd,0*REGISTER_OFFSET,status);
 	reg_ret = mReadReg((u32)mappedCmd,0*REGISTER_OFFSET);
-	printf("Returned status... %u\n",reg_ret);
+	printf("Returned status... %08X\n",reg_ret);
 
 	//mWriteReg((u32)mappedCmd,11*REGISTER_OFFSET,1);
 
 
 	printf("Starting to read...\n");
+
+	printf("Status of enable module:\n");
+	u32 syncreg = mReadReg((u32)mappedDump,0*REGISTER_OFFSET);
+	printf("Returned : %08X\n",syncreg);
 
 	uint32_t baseaddr;
 	int ret = 0;
