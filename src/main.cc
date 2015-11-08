@@ -73,15 +73,22 @@ typedef uint32_t u32;
 using std::cout;
 using std::endl;
 
-#define XPAR_XGPIO_NUM_INSTANCES 2
-#define XPAR_AXI_GPIO_0_BASEADDR 0x41200000
-#define XPAR_AXI_GPIO_0_HIGHADDR 0x4120FFFF
-#define XPAR_AXI_GPIO_1_BASEADDR 0x41210000
-#define XPAR_AXI_GPIO_1_HIGHADDR 0x4121FFFF
-#define XGPIO_CHAN_OFFSET  8
-#define XGPIO_DATA_OFFSET	0x0   /**< Data register for 1st channel */
+u32 SetBitRange(u32 input, u32 value, u32 pos, u32 len) {
 
+	u32 mask = (((u32)1 << len)-1) << pos;
+	u32 result = (input & ~mask) | (value & mask);
+	return result;
+}
 
+u32 GetBit(u32 input, u32 bit) {
+	return (input >> bit) & 0x1;
+}
+
+u32 SetBit(u32 input, u32 bit, u32 status) {
+	u32 new_value = input^((-(status & 0x1) ^ input) & (1 << bit));
+	printf("Original : %08X New: %08X \n",input,new_value);
+	return new_value;
+}
 
 int main()
 {
@@ -105,11 +112,19 @@ int main()
 
     printf("Sending a reset to clear up any lingering trash...\n");
 
-    mWriteReg((u32)mappedCmd,10*REGISTER_OFFSET,0);
 
+//   mWriteReg((u32)mappedCmd,10*REGISTER_OFFSET,0);
+
+    // In the config_manager the reset asserts at 0 (it is internally inverted)
+    // And the reset bit is bit 27
+    u32 status =0x0;
+    status = SetBit(status,27,1);
+    mWriteReg((u32)mappedCmd,0*REGISTER_OFFSET,status);
     sleep(1);
     printf("Reset sent. Now re-asserting the reset signal...\n");
-    mWriteReg((u32)mappedCmd,10*REGISTER_OFFSET,0);
+    //mWriteReg((u32)mappedCmd,10*REGISTER_OFFSET,0);
+    status = SetBit(status,27,0);
+    mWriteReg((u32)mappedCmd,0*REGISTER_OFFSET,status);
     sleep(1);
     printf("Reset sent. Now proceeding with device setup...\n");
 
@@ -120,7 +135,7 @@ int main()
 	//u32 InputData;
 	int i,j;
 	// All 32 bits are used.
-	u32 bitwidth = 0xFFFFFFFF;
+	//u32 bitwidth = 0xFFFFFFFF;
 	//u32 bitwidth = 0x0;
 	// GPIO managers
 	//XGpio GpioInput[XPAR_XGPIO_NUM_INSTANCES];  /* The driver instance for GPIO Device configured as I/P */
@@ -167,8 +182,19 @@ int main()
 //	}
 
 	// Enabling the IPs just prior to start reading
+	printf("Configuring the FPGA....\n");
+	status = SetBit(status,29,0x1);
+	mWriteReg((u32)mappedCmd,0*REGISTER_OFFSET,status);
+	printf("Current status...\n");
+	u32 reg_ret = mReadReg((u32)mappedCmd,0*REGISTER_OFFSET);
+	printf("Returned status... %u\n",reg_ret);
 	printf("Enabling the FPGA...\n");
-	mWriteReg((u32)mappedCmd,11*REGISTER_OFFSET,1);
+	status = SetBit(status,31,0x1);
+	mWriteReg((u32)mappedCmd,0*REGISTER_OFFSET,status);
+	reg_ret = mReadReg((u32)mappedCmd,0*REGISTER_OFFSET);
+	printf("Returned status... %u\n",reg_ret);
+
+	//mWriteReg((u32)mappedCmd,11*REGISTER_OFFSET,1);
 
 
 	printf("Starting to read...\n");
