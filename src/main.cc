@@ -212,9 +212,8 @@ int main()
 
 	printf("Starting to read...\n");
 
-	printf("Status of enable module:\n");
-	u32 syncreg = mReadReg((u32)mappedDump,0*REGISTER_OFFSET);
-	printf("Returned : %08X\n",syncreg);
+	syncreg = mReadReg((u32)mappedDump,0*REGISTER_OFFSET);
+	printf("Status of enable module:%08X\n",syncreg);
 
 	uint32_t baseaddr;
 	int ret = 0;
@@ -225,6 +224,8 @@ int main()
 		ret = xdma_perform_transaction(0,XDMA_WAIT_DST,NULL,0,dst,16);
 //		printf("DMA %08X %08X %08X %08X\r\n",(unsigned int)dst[0],(unsigned int)dst[1],(unsigned int)dst[2],(unsigned int)dst[3]);
 		printf("DMA %08X %08X %08X %08X\r\n",(unsigned int)dst[3],(unsigned int)dst[2],(unsigned int)dst[1],(unsigned int)dst[0]);
+		syncreg = mReadReg((u32)mappedDump,0*REGISTER_OFFSET);
+		printf("Status of enable module:%08X\n",syncreg);
 
 		// Now take the contents from the DMA
 
